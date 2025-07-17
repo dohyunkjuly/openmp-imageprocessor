@@ -14,7 +14,9 @@
 #include <climits>
 #include <chrono>
 
-ImageProcessor::ImageProcessor() : threadCount(std::thread::hardware_concurrency()), openmpThreadCount(std::thread::hardware_concurrency()) {
+ImageProcessor::ImageProcessor()
+    : threadCount(std::thread::hardware_concurrency()),
+      openmpThreadCount(std::thread::hardware_concurrency()) {
     pthread_mutex_init(&pthreadMutex, nullptr);
 }
 

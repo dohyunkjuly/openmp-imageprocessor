@@ -13,37 +13,49 @@ struct Image {
     int height;
     int channels;  // RGB = 3
     std::unique_ptr<unsigned char[]> data;
-    
-    Image() : width(0), height(0), channels(0) {}
-    Image(int w, int h, int c) : width(w), height(h), channels(c) {
-        data = std::make_unique<unsigned char[]>(w * h * c);
-    }
+
+    Image()
+        : width(0), height(0), channels(0) {}
+
+    Image(int w, int h, int c)
+        : width(w), height(h), channels(c),
+          data(std::make_unique<unsigned char[]>(w * h * c)) {}
+
     // Copy constructor
-    Image(const Image& other) : width(other.width), height(other.height), channels(other.channels) {
+    Image(const Image& other)
+        : width(other.width), height(other.height), channels(other.channels) {
         if (other.data) {
-            data = std::make_unique<unsigned char[]>(width * height * channels);
-            std::copy(other.data.get(), other.data.get() + width * height * channels, data.get());
+            size_t dataSize = width * height * channels;
+            data = std::make_unique<unsigned char[]>(dataSize);
+            std::copy(other.data.get(), other.data.get() + dataSize, data.get());
         }
     }
-    // Assignment operator
+    // Copy assignment operator
     Image& operator=(const Image& other) {
         if (this != &other) {
             width = other.width;
             height = other.height;
             channels = other.channels;
             if (other.data) {
-                data = std::make_unique<unsigned char[]>(width * height * channels);
-                std::copy(other.data.get(), other.data.get() + width * height * channels, data.get());
+                size_t dataSize = width * height * channels;
+                data = std::make_unique<unsigned char[]>(dataSize);
+                std::copy(other.data.get(), other.data.get() + dataSize, data.get());
             } else {
                 data.reset();
             }
         }
         return *this;
     }
-    
-    bool empty() const { return !data || width == 0 || height == 0; }
-    unsigned char* ptr() { return data.get(); }
-    const unsigned char* ptr() const { return data.get(); }
+
+    bool empty() const {
+        return !data || width == 0 || height == 0;
+    }
+    unsigned char* ptr() {
+        return data.get();
+    }
+    const unsigned char* ptr() const {
+        return data.get();
+    }
 };
 
 enum class ProcessingMethod {
@@ -64,9 +76,7 @@ private:
     Image processedImage;
     int threadCount;
     int openmpThreadCount;
-    
-    // Thread safety
-    mutable pthread_mutex_t pthreadMutex;
+    mutable pthread_mutex_t pthreadMutex; // Thread safety
     
     // Sequential implementation
     Image gaussianBlurSequential(const Image& image, int kernelSize, double sigmaX);
